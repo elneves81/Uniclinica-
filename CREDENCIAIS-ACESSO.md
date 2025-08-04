@@ -18,11 +18,39 @@
 
 ## 📱 Páginas Disponíveis
 
-- `/` - Dashboard principal
+### 🏠 **Área Principal**
+
+- `/` - Dashboard principal com fila de pacientes
 - `/auth/signin` - Página de login
 - `/auth/register` - Registro de novos usuários
+
+### 👥 **Gestão de Pacientes**
+
+- `/pesquisa-usuario` - Pesquisa e gerenciamento de usuários
+- `/pacientes` - Cadastro de pacientes
+- `/prontuario/[id]` - Sistema completo de prontuário médico
+
+### 📅 **Agendamento e Atendimento**
+
+- `/agenda` - Sistema de agendamento médico
+- `/fila-atendimento` - Fila de atendimento
+- `/recepcao` - Área da recepção
+
+### 🩺 **Especialidades Médicas**
+
 - `/clinica-geral` - Módulo de Clínica Geral
-- `/agenda` - Sistema de agendamento
+- `/especialidades/dermatologia` - Dermatologia
+- `/especialidades/pediatria` - Pediatria  
+- `/especialidades/ginecologia` - Ginecologia
+
+### 💰 **Financeiro e Relatórios**
+
+- `/financeiro` - Gestão financeira
+- `/relatorios` - Relatórios do sistema
+- `/prontuarios` - Histórico de prontuários
+
+### ⚙️ **Sistema**
+
 - `/status` - Status do sistema
 
 ## 🛠️ Próximos Passos
@@ -42,6 +70,7 @@
 ---
 
 **Sistema desenvolvido com:**
+
 - Next.js 15 + TypeScript
 - Prisma + PostgreSQL (Prisma Accelerate)
 - NextAuth.js
