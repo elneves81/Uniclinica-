@@ -4,21 +4,10 @@ import { useState } from "react";
 import { 
   Search, 
   User,
-  Phone,
-  Mail,
-  MapPin,
-  Calendar,
-  Filter,
   FileText,
   Plus,
   Edit,
-  Eye,
-  Download,
-  Printer,
-  Settings,
-  Stethoscope,
-  Users,
-  Building
+  Stethoscope
 } from "lucide-react";
 
 interface UserData {
