@@ -53,23 +53,33 @@ O arquivo `netlify.toml` já está configurado com:
 
 ## 🗃️ Configuração do Banco de Dados
 
-### Prisma Postgres no Netlify (Recomendado) ⭐
+### Opção 1: Prisma Postgres no Netlify (Recomendado) ⭐
 1. **Instale a extensão**: Vá em Extensions → Prisma Postgres
 2. **Configure o projeto**: Selecione `uniclinicamed`
 3. **Environments**: Use `Development` para ambos
 4. **Clique em Save**: O banco será criado automaticamente
 5. **Copie a DATABASE_URL**: Será gerada automaticamente
 
-### Alternativa: Prisma Accelerate
-Se você já tem uma URL do Prisma Accelerate:
-- Use diretamente na variável `DATABASE_URL`
-- Cache automático incluído
+⚠️ **Se der erro "Failed to save team configuration"**:
+- Verifique permissões de admin no projeto
+- Tente modo incógnito do navegador
+- Use a alternativa Neon.tech abaixo
 
-### Outras Alternativas PostgreSQL
-- **Supabase**: https://supabase.com (gratuito)
-- **PlanetScale**: https://planetscale.com
-- **Railway**: https://railway.app
-- **Neon**: https://neon.tech
+### Opção 2: Neon.tech (Alternativa Fácil) 🚀
+**Se o Prisma Postgres der erro, use esta opção:**
+
+1. **Acesse**: https://neon.tech
+2. **Crie conta gratuita** (500MB grátis)
+3. **Crie novo projeto**: `uniclinica-db`
+4. **Copie a Connection String** que aparece
+5. **Use no Netlify** como `DATABASE_URL`
+
+### Opção 3: Supabase (Alternativa Robusta) 💪
+1. **Acesse**: https://supabase.com
+2. **Crie projeto**: `uniclinica`
+3. **Vá em Settings** → **Database**
+4. **Copie Connection String** (modo URI)
+5. **Configure no Netlify**
 
 ## 🚀 Processo de Deploy
 
