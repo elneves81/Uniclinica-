@@ -12,13 +12,17 @@ import {
   Stethoscope,
   Baby,
   Eye,
-  Heart
+  Heart,
+  Search,
+  UserPlus
 } from "lucide-react";
 
 const menuItems = [
   { href: "/", label: "Dashboard", icon: Home },
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
+  { href: "/recepcao", label: "Recepção", icon: UserPlus },
   { href: "/pacientes", label: "Pacientes", icon: Users },
+  { href: "/pesquisa-usuario", label: "Pesquisa de Usuário", icon: Search },
   { href: "/prontuarios", label: "Prontuários", icon: FileText },
   { href: "/financeiro", label: "Financeiro", icon: DollarSign },
   {
