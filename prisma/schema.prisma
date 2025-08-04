@@ -1,8 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-1.0.x"]
 }
 
@@ -11,25 +8,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modelo de Usuários e Autenticação
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?   // Para autenticação com credenciais
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relacionamentos
-  accounts      Account[]
-  sessions      Session[]
-  doctor        Doctor?
-  patient       Patient?
-  appointments  Appointment[]
+  id             String          @id @default(cuid())
+  name           String?
+  email          String          @unique
+  emailVerified  DateTime?
+  image          String?
+  role           UserRole        @default(USER)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  password       String?
+  accounts       Account[]
+  appointments   Appointment[]
+  doctor         Doctor?
   medicalRecords MedicalRecord[]
+  patient        Patient?
+  sessions       Session[]
 
   @@map("users")
 }
@@ -40,15 +34,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -73,144 +66,125 @@ model VerificationToken {
   @@map("verificationtokens")
 }
 
-// Modelo de Médicos
 model Doctor {
-  id          String           @id @default(cuid())
-  userId      String           @unique
-  crm         String           @unique
-  crmState    String
-  specialty   MedicalSpecialty
-  phone       String?
-  address     String?
-  bio         String?
-  consultFee  Decimal?
-  isActive    Boolean          @default(true)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-
-  // Relacionamentos
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  appointments Appointment[]
-  schedules    DoctorSchedule[]
+  id             String           @id @default(cuid())
+  userId         String           @unique
+  crm            String           @unique
+  crmState       String
+  specialty      MedicalSpecialty
+  phone          String?
+  address        String?
+  bio            String?
+  consultFee     Decimal?
+  isActive       Boolean          @default(true)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  appointments   Appointment[]
+  schedules      DoctorSchedule[]
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   medicalRecords MedicalRecord[]
 
   @@map("doctors")
 }
 
-// Modelo de Pacientes
 model Patient {
-  id          String    @id @default(cuid())
-  userId      String?   @unique
-  name        String
-  cpf         String    @unique
-  rg          String?
-  birthDate   DateTime
-  gender      Gender
-  phone       String
-  email       String?
-  address     String?
-  city        String?
-  state       String?
-  zipCode     String?
-  emergencyContact String?
-  emergencyPhone   String?
-  allergies   String?
-  medications String?
-  observations String?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Relacionamentos
-  user           User?          @relation(fields: [userId], references: [id])
-  appointments   Appointment[]
-  medicalRecords MedicalRecord[]
-  payments       Payment[]
-  
-  // Registros específicos por especialidade
-  pediatricRecords     PediatricRecord[]
-  dermatologyRecords   DermatologyRecord[]
-  gynecologyRecords    GynecologyRecord[]
+  id                     String                  @id @default(cuid())
+  userId                 String?                 @unique
+  name                   String
+  cpf                    String                  @unique
+  rg                     String?
+  birthDate              DateTime
+  gender                 Gender
+  phone                  String
+  email                  String?
+  address                String?
+  city                   String?
+  state                  String?
+  zipCode                String?
+  emergencyContact       String?
+  emergencyPhone         String?
+  allergies              String?
+  medications            String?
+  observations           String?
+  isActive               Boolean                 @default(true)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  appointments           Appointment[]
+  dermatologyRecords     DermatologyRecord[]
   generalMedicineRecords GeneralMedicineRecord[]
+  gynecologyRecords      GynecologyRecord[]
+  medicalRecords         MedicalRecord[]
+  user                   User?                   @relation(fields: [userId], references: [id])
+  payments               Payment[]
+  pediatricRecords       PediatricRecord[]
 
   @@map("patients")
 }
 
-// Modelo de Agendamentos
 model Appointment {
-  id          String            @id @default(cuid())
-  doctorId    String
-  patientId   String
-  userId      String?
-  date        DateTime
-  duration    Int               @default(30) // em minutos
-  status      AppointmentStatus @default(SCHEDULED)
-  type        AppointmentType   @default(CONSULTATION)
-  notes       String?
-  price       Decimal?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-
-  // Relacionamentos
-  doctor      Doctor    @relation(fields: [doctorId], references: [id])
-  patient     Patient   @relation(fields: [patientId], references: [id])
-  user        User?     @relation(fields: [userId], references: [id])
+  id            String            @id @default(cuid())
+  doctorId      String
+  patientId     String
+  userId        String?
+  date          DateTime
+  duration      Int               @default(30)
+  status        AppointmentStatus @default(SCHEDULED)
+  type          AppointmentType   @default(CONSULTATION)
+  notes         String?
+  price         Decimal?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  doctor        Doctor            @relation(fields: [doctorId], references: [id])
+  patient       Patient           @relation(fields: [patientId], references: [id])
+  user          User?             @relation(fields: [userId], references: [id])
   medicalRecord MedicalRecord?
-  payment     Payment?
+  payment       Payment?
 
   @@map("appointments")
 }
 
-// Modelo de Horários dos Médicos
 model DoctorSchedule {
   id        String   @id @default(cuid())
   doctorId  String
-  dayOfWeek Int      // 0-6 (Domingo a Sábado)
-  startTime String   // HH:mm
-  endTime   String   // HH:mm
+  dayOfWeek Int
+  startTime String
+  endTime   String
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  doctor Doctor @relation(fields: [doctorId], references: [id])
+  doctor    Doctor   @relation(fields: [doctorId], references: [id])
 
   @@map("doctor_schedules")
 }
 
-// Modelo de Prontuário Eletrônico
 model MedicalRecord {
-  id            String     @id @default(cuid())
-  appointmentId String?    @unique
-  patientId     String
-  doctorId      String
-  userId        String
-  date          DateTime
-  chiefComplaint String   // Queixa principal
-  history       String?   // História da doença atual
-  physicalExam  String?   // Exame físico
-  diagnosis     String?   // Diagnóstico
-  treatment     String?   // Tratamento
-  prescription  String?   // Prescrição
-  observations  String?   // Observações
-  followUp      String?   // Orientações de retorno
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relacionamentos
-  appointment Appointment? @relation(fields: [appointmentId], references: [id])
-  patient     Patient      @relation(fields: [patientId], references: [id])
-  doctor      Doctor       @relation(fields: [doctorId], references: [id])
-  user        User         @relation(fields: [userId], references: [id])
-  
-  // Anexos
-  attachments MedicalAttachment[]
+  id             String              @id @default(cuid())
+  appointmentId  String?             @unique
+  patientId      String
+  doctorId       String
+  userId         String
+  date           DateTime
+  chiefComplaint String
+  history        String?
+  physicalExam   String?
+  diagnosis      String?
+  treatment      String?
+  prescription   String?
+  observations   String?
+  followUp       String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  attachments    MedicalAttachment[]
+  appointment    Appointment?        @relation(fields: [appointmentId], references: [id])
+  doctor         Doctor              @relation(fields: [doctorId], references: [id])
+  patient        Patient             @relation(fields: [patientId], references: [id])
+  user           User                @relation(fields: [userId], references: [id])
 
   @@map("medical_records")
 }
 
-// Modelo de Anexos Médicos
 model MedicalAttachment {
-  id              String        @id @default(cuid())
+  id              String         @id @default(cuid())
   medicalRecordId String
   filename        String
   originalName    String
@@ -218,14 +192,12 @@ model MedicalAttachment {
   size            Int
   url             String
   type            AttachmentType
-  createdAt       DateTime      @default(now())
-
-  medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+  medicalRecord   MedicalRecord  @relation(fields: [medicalRecordId], references: [id], onDelete: Cascade)
 
   @@map("medical_attachments")
 }
 
-// Modelo Financeiro - Pagamentos
 model Payment {
   id            String        @id @default(cuid())
   appointmentId String?       @unique
@@ -238,104 +210,87 @@ model Payment {
   description   String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
-
-  appointment Appointment? @relation(fields: [appointmentId], references: [id])
-  patient     Patient      @relation(fields: [patientId], references: [id])
+  appointment   Appointment?  @relation(fields: [appointmentId], references: [id])
+  patient       Patient       @relation(fields: [patientId], references: [id])
 
   @@map("payments")
 }
 
-// ========================================
-// MODELOS ESPECÍFICOS POR ESPECIALIDADE
-// ========================================
-
-// PEDIATRIA
 model PediatricRecord {
-  id            String   @id @default(cuid())
-  patientId     String
-  birthWeight   Decimal? // Peso ao nascer (kg)
-  birthHeight   Decimal? // Altura ao nascer (cm)
-  gestationWeeks Int?    // Semanas de gestação
-  apgarScore    String?  // Pontuação APGAR
-  vaccinations  Json?    // Histórico de vacinações
-  growthChart   Json?    // Dados da curva de crescimento
-  milestones    Json?    // Marcos do desenvolvimento
-  feedingHistory String? // Histórico alimentar
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  patient Patient @relation(fields: [patientId], references: [id])
+  id             String   @id @default(cuid())
+  patientId      String
+  birthWeight    Decimal?
+  birthHeight    Decimal?
+  gestationWeeks Int?
+  apgarScore     String?
+  vaccinations   Json?
+  growthChart    Json?
+  milestones     Json?
+  feedingHistory String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  patient        Patient  @relation(fields: [patientId], references: [id])
 
   @@map("pediatric_records")
 }
 
-// DERMATOLOGIA
 model DermatologyRecord {
-  id                String   @id @default(cuid())
-  patientId         String
-  skinType          Int?     // Tipo de pele (I-VI)
-  familyHistory     String?  // História familiar
-  personalHistory   String?  // História pessoal
-  currentMedications String? // Medicações atuais
-  allergies         String?  // Alergias
-  bodyMap           Json?    // Mapeamento corporal
-  dermoscopyImages  Json?    // Imagens de dermatoscopia
-  lesionTracking    Json?    // Acompanhamento de lesões
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  patient Patient @relation(fields: [patientId], references: [id])
+  id                 String   @id @default(cuid())
+  patientId          String
+  skinType           Int?
+  familyHistory      String?
+  personalHistory    String?
+  currentMedications String?
+  allergies          String?
+  bodyMap            Json?
+  dermoscopyImages   Json?
+  lesionTracking     Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  patient            Patient  @relation(fields: [patientId], references: [id])
 
   @@map("dermatology_records")
 }
 
-// GINECOLOGIA
 model GynecologyRecord {
-  id              String   @id @default(cuid())
-  patientId       String
-  menarche        Int?     // Idade da menarca
-  menstrualCycle  String?  // Ciclo menstrual
-  lastMenstruation DateTime? // Última menstruação
-  pregnancies     Int      @default(0) // Gestações
-  deliveries      Int      @default(0) // Partos
-  abortions       Int      @default(0) // Abortos
-  contraceptive   String?  // Método contraceptivo
-  gynecologicalExams Json? // Exames ginecológicos
-  mammography     Json?    // Mamografias
-  papSmear        Json?    // Papanicolau
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  patient Patient @relation(fields: [patientId], references: [id])
+  id                 String    @id @default(cuid())
+  patientId          String
+  menarche           Int?
+  menstrualCycle     String?
+  lastMenstruation   DateTime?
+  pregnancies        Int       @default(0)
+  deliveries         Int       @default(0)
+  abortions          Int       @default(0)
+  contraceptive      String?
+  gynecologicalExams Json?
+  mammography        Json?
+  papSmear           Json?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  patient            Patient   @relation(fields: [patientId], references: [id])
 
   @@map("gynecology_records")
 }
 
-// CLÍNICA MÉDICA GERAL
 model GeneralMedicineRecord {
-  id                String   @id @default(cuid())
-  patientId         String
-  bloodPressure     String?  // Pressão arterial
-  heartRate         Int?     // Frequência cardíaca
-  temperature       Decimal? // Temperatura
-  weight            Decimal? // Peso
-  height            Decimal? // Altura
-  bmi               Decimal? // IMC
-  chronicDiseases   Json?    // Doenças crônicas
-  familyHistory     String?  // História familiar
-  socialHistory     String?  // História social
-  labResults        Json?    // Resultados de exames
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  patient Patient @relation(fields: [patientId], references: [id])
+  id              String   @id @default(cuid())
+  patientId       String
+  bloodPressure   String?
+  heartRate       Int?
+  temperature     Decimal?
+  weight          Decimal?
+  height          Decimal?
+  bmi             Decimal?
+  chronicDiseases Json?
+  familyHistory   String?
+  socialHistory   String?
+  labResults      Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  patient         Patient  @relation(fields: [patientId], references: [id])
 
   @@map("general_medicine_records")
 }
-
-// ========================================
-// ENUMS
-// ========================================
 
 enum UserRole {
   USER

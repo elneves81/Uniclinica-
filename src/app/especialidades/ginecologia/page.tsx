@@ -197,6 +197,22 @@ interface GynecologyRecord {
 
   status: "active" | "completed" | "follow_up";
   createdAt: string;
+  
+  // Conduta médica específica
+  medicalConduct: {
+    clinicalConduct: string;
+    prescription: string;
+    followUpInstructions: string;
+    returnDate?: string;
+    emergencyInstructions: string;
+    contraceptiveGuidance: string;
+    screeningInstructions: string;
+    referrals: Array<{
+      specialty: string;
+      reason: string;
+      urgency: "routine" | "urgent" | "emergency";
+    }>;
+  };
 }
 
 // Dados mock
@@ -334,6 +350,17 @@ const mockGynecologyRecords: GynecologyRecord[] = [
         influenza: true,
         covid19: true
       }
+    },
+
+    medicalConduct: {
+      clinicalConduct: "Consulta ginecológica de rotina sem alterações. Exame físico normal, papanicolau negativo para malignidade. Paciente em uso de anticoncepcional oral combinado sem intercorrências.",
+      prescription: "Manter anticoncepcional oral atual (mesmo horário diário)\nÁcido fólico 400mcg - 1 comprimido ao dia",
+      followUpInstructions: "Retorno anual para consulta de rotina e coleta de papanicolau. Autoexame das mamas mensalmente. Manter atividade física regular.",
+      returnDate: "2025-01-15",
+      emergencyInstructions: "Procurar atendimento imediato em caso de: sangramento anormal, dor pélvica intensa, corrimento com odor fétido, nódulos nas mamas.",
+      contraceptiveGuidance: "Anticoncepcional deve ser tomado sempre no mesmo horário. Em caso de esquecimento até 12h, tomar imediatamente. Após 12h, usar método barreira adicional por 7 dias.",
+      screeningInstructions: "Papanicolau anual, mamografia a partir dos 40 anos (história familiar) ou 50 anos (rotina). Autoexame das mamas mensalmente, preferencialmente após a menstruação.",
+      referrals: []
     },
 
     status: "completed",

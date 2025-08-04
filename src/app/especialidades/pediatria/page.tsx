@@ -15,7 +15,8 @@ import {
   AlertTriangle,
   Plus,
   Eye,
-  Search
+  Search,
+  Clipboard
 } from "lucide-react";
 
 interface PediatricRecord {
@@ -115,6 +116,22 @@ interface PediatricRecord {
     safety: string[];
     development: string[];
     nextVisit: string;
+  };
+
+  // Conduta médica específica
+  medicalConduct: {
+    clinicalConduct: string;
+    prescription: string;
+    followUpInstructions: string;
+    returnDate?: string;
+    emergencyInstructions: string;
+    parentGuidance: string;
+    vaccineSchedule?: string;
+    referrals: Array<{
+      specialty: string;
+      reason: string;
+      urgency: "routine" | "urgent" | "emergency";
+    }>;
   };
 
   status: "active" | "completed";
@@ -239,6 +256,17 @@ const mockPediatricRecords: PediatricRecord[] = [
         "Estímulo à linguagem"
       ],
       nextVisit: "Retorno em 3 meses para acompanhamento do crescimento"
+    },
+
+    medicalConduct: {
+      clinicalConduct: "Paciente em desenvolvimento adequado para a idade. Crescimento dentro dos percentis normais. Continuar acompanhamento regular de puericultura.",
+      prescription: "Polivitamínico infantil - 5ml via oral, 1x ao dia por 30 dias\nÓleo de fígado de bacalhau - 2,5ml via oral, 1x ao dia",
+      followUpInstructions: "Retornar em 3 meses para acompanhamento do crescimento e desenvolvimento. Monitorar desenvolvimento da linguagem.",
+      returnDate: "2024-04-15",
+      emergencyInstructions: "Procurar atendimento imediato em caso de: febre alta (>38.5°C), dificuldade respiratória, vômitos persistentes, letargia ou irritabilidade excessiva.",
+      parentGuidance: "Manter estímulos ao desenvolvimento motor e de linguagem. Continuar alimentação variada. Atenção especial à segurança doméstica nesta faixa etária.",
+      vaccineSchedule: "Próximas vacinas: Hepatite A (2ª dose) aos 2 anos",
+      referrals: []
     },
 
     status: "completed",
@@ -483,7 +511,8 @@ export default function PediatriaPage() {
                   { id: "overview", label: "Visão Geral", icon: Baby },
                   { id: "growth", label: "Crescimento", icon: TrendingUp },
                   { id: "development", label: "Desenvolvimento", icon: Activity },
-                  { id: "vaccination", label: "Vacinação", icon: Shield }
+                  { id: "vaccination", label: "Vacinação", icon: Shield },
+                  { id: "conduct", label: "Conduta Médica", icon: Clipboard }
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -629,6 +658,87 @@ export default function PediatriaPage() {
                     ))}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {activeTab === "conduct" && (
+              <div className="space-y-6">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">Conduta Clínica</h3>
+                  <div className="text-sm text-gray-700 bg-white p-4 rounded border">
+                    {selectedRecord.medicalConduct.clinicalConduct}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="font-semibold text-gray-900 mb-3">Prescrição Médica</h3>
+                    <div className="text-sm text-gray-700 bg-white p-4 rounded border whitespace-pre-line">
+                      {selectedRecord.medicalConduct.prescription}
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="font-semibold text-gray-900 mb-3">Orientações de Seguimento</h3>
+                    <div className="text-sm text-gray-700 bg-white p-4 rounded border">
+                      {selectedRecord.medicalConduct.followUpInstructions}
+                    </div>
+                    {selectedRecord.medicalConduct.returnDate && (
+                      <div className="mt-3 p-2 bg-blue-100 rounded">
+                        <p className="text-sm font-medium text-blue-800">
+                          Retorno agendado: {new Date(selectedRecord.medicalConduct.returnDate).toLocaleDateString("pt-BR")}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">Orientações aos Pais/Responsáveis</h3>
+                  <div className="text-sm text-gray-700 bg-white p-4 rounded border">
+                    {selectedRecord.medicalConduct.parentGuidance}
+                  </div>
+                </div>
+
+                {selectedRecord.medicalConduct.vaccineSchedule && (
+                  <div className="bg-green-50 rounded-lg p-4">
+                    <h3 className="font-semibold text-green-900 mb-3">Calendário Vacinal</h3>
+                    <div className="text-sm text-green-700 bg-white p-4 rounded border">
+                      {selectedRecord.medicalConduct.vaccineSchedule}
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-red-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-red-900 mb-3">Instruções de Emergência</h3>
+                  <div className="text-sm text-red-700 bg-white p-4 rounded border">
+                    {selectedRecord.medicalConduct.emergencyInstructions}
+                  </div>
+                </div>
+
+                {selectedRecord.medicalConduct.referrals.length > 0 && (
+                  <div className="bg-yellow-50 rounded-lg p-4">
+                    <h3 className="font-semibold text-yellow-900 mb-3">Encaminhamentos</h3>
+                    <div className="space-y-2">
+                      {selectedRecord.medicalConduct.referrals.map((referral, index) => (
+                        <div key={index} className="bg-white p-3 rounded border">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-yellow-900">{referral.specialty}</span>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              referral.urgency === "emergency" ? "bg-red-100 text-red-800" :
+                              referral.urgency === "urgent" ? "bg-yellow-100 text-yellow-800" :
+                              "bg-gray-100 text-gray-800"
+                            }`}>
+                              {referral.urgency === "emergency" ? "Emergência" :
+                               referral.urgency === "urgent" ? "Urgente" : "Rotina"}
+                            </span>
+                          </div>
+                          <p className="text-sm text-yellow-700 mt-1">{referral.reason}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

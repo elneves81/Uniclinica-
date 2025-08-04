@@ -15,7 +15,8 @@ import {
   Palette,
   Calendar,
   Download,
-  Edit
+  Edit,
+  Clipboard
 } from "lucide-react";
 
 interface DermatologyRecord {
@@ -145,6 +146,22 @@ interface DermatologyRecord {
       required: boolean;
       frequency: string;
     };
+  };
+
+  // Conduta médica específica
+  medicalConduct: {
+    clinicalConduct: string;
+    prescription: string;
+    followUpInstructions: string;
+    returnDate?: string;
+    emergencyInstructions: string;
+    sunProtectionGuidance: string;
+    selfExaminationInstructions: string;
+    referrals: Array<{
+      specialty: string;
+      reason: string;
+      urgency: "routine" | "urgent" | "emergency";
+    }>;
   };
 
   attachments: Array<{
@@ -314,6 +331,23 @@ const mockDermatologyRecords: DermatologyRecord[] = [
         lesionId: "lesion_001"
       }
     ],
+
+    medicalConduct: {
+      clinicalConduct: "Paciente com múltiplas lesões pigmentadas, necessário acompanhamento rigoroso. Lesão em dorso com características suspeitas para melanoma (ABCDE score 8/10). Biópsia urgente indicada.",
+      prescription: "Protetor solar FPS 60+ - aplicar 30min antes da exposição solar, reaplicar a cada 2 horas\nHidratante corporal - aplicar 2x ao dia após o banho",
+      followUpInstructions: "Retorno em 1 mês com resultado da biópsia. Mapeamento corporal semestral. Autoexame mensal das lesões.",
+      returnDate: "2024-02-15",
+      emergencyInstructions: "Procurar atendimento imediato se observar: mudança rápida na cor, tamanho ou formato de qualquer lesão, sangramento, coceira persistente ou ferida que não cicatriza.",
+      sunProtectionGuidance: "Uso obrigatório de protetor solar FPS 60+, roupas com proteção UV, chapéus de aba larga. Evitar exposição solar entre 10h-16h. Procurar sombra sempre que possível.",
+      selfExaminationInstructions: "Examinar toda a pele mensalmente, incluindo couro cabeludo, plantas dos pés e entre os dedos. Observar regra ABCDE: Assimetria, Bordas irregulares, Cores variadas, Diâmetro >6mm, Evolução. Fotografar lesões suspeitas para comparação.",
+      referrals: [
+        {
+          specialty: "Cirurgia Plástica",
+          reason: "Avaliação para ressecção de lesão suspeita se biópsia confirmar malignidade",
+          urgency: "urgent"
+        }
+      ]
+    },
 
     status: "follow_up",
     createdAt: "2024-01-15T14:30:00Z"
@@ -592,7 +626,8 @@ export default function DermatologiaPage() {
                   { id: "overview", label: "Geral", icon: Scan },
                   { id: "mapping", label: "Mapeamento", icon: MapPin },
                   { id: "dermoscopy", label: "Dermatoscopia", icon: Camera },
-                  { id: "treatment", label: "Tratamento", icon: Shield }
+                  { id: "treatment", label: "Tratamento", icon: Shield },
+                  { id: "conduct", label: "Conduta Médica", icon: Clipboard }
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -793,6 +828,85 @@ export default function DermatologiaPage() {
                     )}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {activeTab === "conduct" && (
+              <div className="space-y-6">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">Conduta Clínica</h3>
+                  <div className="text-sm text-gray-700 bg-white p-4 rounded border">
+                    {selectedRecord.medicalConduct.clinicalConduct}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="font-semibold text-gray-900 mb-3">Prescrição Dermatológica</h3>
+                    <div className="text-sm text-gray-700 bg-white p-4 rounded border whitespace-pre-line">
+                      {selectedRecord.medicalConduct.prescription}
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <h3 className="font-semibold text-gray-900 mb-3">Orientações de Seguimento</h3>
+                    <div className="text-sm text-gray-700 bg-white p-4 rounded border">
+                      {selectedRecord.medicalConduct.followUpInstructions}
+                    </div>
+                    {selectedRecord.medicalConduct.returnDate && (
+                      <div className="mt-3 p-2 bg-blue-100 rounded">
+                        <p className="text-sm font-medium text-blue-800">
+                          Retorno agendado: {new Date(selectedRecord.medicalConduct.returnDate).toLocaleDateString("pt-BR")}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-orange-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-orange-900 mb-3">Fotoproteção e Cuidados com a Pele</h3>
+                  <div className="text-sm text-orange-700 bg-white p-4 rounded border">
+                    {selectedRecord.medicalConduct.sunProtectionGuidance}
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-blue-900 mb-3">Instruções para Autoexame</h3>
+                  <div className="text-sm text-blue-700 bg-white p-4 rounded border">
+                    {selectedRecord.medicalConduct.selfExaminationInstructions}
+                  </div>
+                </div>
+
+                <div className="bg-red-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-red-900 mb-3">Sinais de Alerta</h3>
+                  <div className="text-sm text-red-700 bg-white p-4 rounded border">
+                    {selectedRecord.medicalConduct.emergencyInstructions}
+                  </div>
+                </div>
+
+                {selectedRecord.medicalConduct.referrals.length > 0 && (
+                  <div className="bg-yellow-50 rounded-lg p-4">
+                    <h3 className="font-semibold text-yellow-900 mb-3">Encaminhamentos</h3>
+                    <div className="space-y-2">
+                      {selectedRecord.medicalConduct.referrals.map((referral, index) => (
+                        <div key={index} className="bg-white p-3 rounded border">
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium text-yellow-900">{referral.specialty}</span>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              referral.urgency === "emergency" ? "bg-red-100 text-red-800" :
+                              referral.urgency === "urgent" ? "bg-yellow-100 text-yellow-800" :
+                              "bg-gray-100 text-gray-800"
+                            }`}>
+                              {referral.urgency === "emergency" ? "Emergência" :
+                               referral.urgency === "urgent" ? "Urgente" : "Rotina"}
+                            </span>
+                          </div>
+                          <p className="text-sm text-yellow-700 mt-1">{referral.reason}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
