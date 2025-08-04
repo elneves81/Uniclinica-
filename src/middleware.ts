@@ -1,24 +1,47 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 
-export function middleware(request: NextRequest) {
-  // Verificar se estamos acessando uma rota que precisa de configuração
+export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Permitir acesso às rotas de status e error sem verificação
-  if (pathname.startsWith('/status') || 
-      pathname.startsWith('/error') || 
-      pathname.startsWith('/_next') ||
-      pathname.startsWith('/api/auth')) {
+  // Rotas públicas que não precisam de autenticação
+  const publicRoutes = [
+    '/auth/signin',
+    '/auth/register', 
+    '/status',
+    '/error',
+    '/_next',
+    '/api/auth',
+    '/favicon.ico'
+  ]
+
+  // Verificar se a rota é pública
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+
+  if (isPublicRoute) {
     return NextResponse.next()
   }
 
-  // Verificar variáveis críticas
+  // Verificar variáveis críticas do ambiente
   const hasDatabase = !!process.env.DATABASE_URL
   const hasNextAuth = !!process.env.NEXTAUTH_SECRET
 
   if (!hasDatabase || !hasNextAuth) {
     return NextResponse.redirect(new URL('/status', request.url))
+  }
+
+  // Verificar autenticação para rotas protegidas
+  const token = await getToken({ 
+    req: request, 
+    secret: process.env.NEXTAUTH_SECRET 
+  })
+
+  // Se não tem token e não é rota pública, redirecionar para login
+  if (!token) {
+    const signInUrl = new URL('/auth/signin', request.url)
+    signInUrl.searchParams.set('callbackUrl', pathname)
+    return NextResponse.redirect(signInUrl)
   }
 
   return NextResponse.next()

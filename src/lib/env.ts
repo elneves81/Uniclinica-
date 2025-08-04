@@ -1,21 +1,12 @@
 // Validação de variáveis de ambiente
 export function validateEnv() {
-  const requiredEnvVars = {
-    DATABASE_URL: process.env.DATABASE_URL,
-    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-  }
-
-  const missing = Object.entries(requiredEnvVars)
-    .filter(([, value]) => !value)
-    .map(([key]) => key)
-
-  if (missing.length > 0) {
-    console.error('❌ Variáveis de ambiente faltando:', missing.join(', '))
+  // Verificar apenas a variável essencial do banco de dados
+  if (!process.env.DATABASE_URL) {
+    console.error('❌ DATABASE_URL não está configurada')
     return false
   }
 
-  console.log('✅ Todas as variáveis de ambiente obrigatórias estão definidas')
+  console.log('✅ Variáveis de ambiente essenciais estão definidas')
   return true
 }
 
