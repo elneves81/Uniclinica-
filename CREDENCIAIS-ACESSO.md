@@ -26,7 +26,7 @@
 
 ### 👥 **Gestão de Pacientes**
 
-- `/pesquisa-usuario` - Pesquisa e gerenciamento de usuários
+- `/busca-usuarios` - Busca e gerenciamento de usuários
 - `/pacientes` - Cadastro de pacientes
 - `/prontuario/[id]` - Sistema completo de prontuário médico
 
