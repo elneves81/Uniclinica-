@@ -53,13 +53,19 @@ O arquivo `netlify.toml` já está configurado com:
 
 ## 🗃️ Configuração do Banco de Dados
 
-### Prisma Accelerate (Recomendado)
-1. **URL já configurada**: Você já tem a URL do Prisma Accelerate
-2. **Sem necessidade de migrations**: O `prisma db push` já foi executado
-3. **Cache automático**: Prisma Accelerate oferece cache global
+### Prisma Postgres no Netlify (Recomendado) ⭐
+1. **Instale a extensão**: Vá em Extensions → Prisma Postgres
+2. **Configure o projeto**: Selecione `uniclinicamed`
+3. **Environments**: Use `Development` para ambos
+4. **Clique em Save**: O banco será criado automaticamente
+5. **Copie a DATABASE_URL**: Será gerada automaticamente
 
-### Alternativa: PostgreSQL Externo
-Se quiser usar outro provedor:
+### Alternativa: Prisma Accelerate
+Se você já tem uma URL do Prisma Accelerate:
+- Use diretamente na variável `DATABASE_URL`
+- Cache automático incluído
+
+### Outras Alternativas PostgreSQL
 - **Supabase**: https://supabase.com (gratuito)
 - **PlanetScale**: https://planetscale.com
 - **Railway**: https://railway.app
