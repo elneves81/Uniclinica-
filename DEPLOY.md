@@ -97,6 +97,20 @@ npx prisma generate
 npm ci
 ```
 
+### Erro 404 de JavaScript/CSS (MIME type 'text/html')
+Se você ver erros como:
+```
+Failed to load resource: the server responded with a status of 404
+Refused to execute script because its MIME type ('text/html') is not executable
+```
+
+**Causa**: Configuração incorreta de redirects no Netlify
+**Solução**: 
+1. ✅ Use apenas o plugin oficial `@netlify/plugin-nextjs`
+2. ✅ Remova redirects manuais no `netlify.toml`
+3. ✅ Não use `output: 'standalone'` no `next.config.ts`
+4. ✅ Evite arquivos `_redirects` no diretório `public`
+
 ### Erro de Banco de Dados
 1. Verifique a `DATABASE_URL` nas variáveis de ambiente
 2. Confirme se o Prisma Accelerate está ativo
