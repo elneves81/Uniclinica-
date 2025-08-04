@@ -1,6 +1,7 @@
 "use client";
 
-import { Clock, User, Calendar, MoreVertical } from "lucide-react";
+import { Clock, User, Calendar, CalendarDays } from "lucide-react";
+import Link from "next/link";
 
 interface Appointment {
   id: string;
@@ -26,7 +27,8 @@ const statusLabels = {
 };
 
 export function RecentAppointments() {
-  const appointments: Appointment[] = [
+  // Dados dos agendamentos de hoje
+  const todayAppointments: Appointment[] = [
     {
       id: "1",
       patient: "Maria Silva",
@@ -47,7 +49,7 @@ export function RecentAppointments() {
       id: "3",
       patient: "Lucia Fernandes",
       doctor: "Dr. Carlos Lima",
-      time: "11:00",
+      time: "14:00",
       status: "scheduled",
       specialty: "Dermatologia"
     },
@@ -55,34 +57,42 @@ export function RecentAppointments() {
       id: "4",
       patient: "Roberto Souza",
       doctor: "Dra. Maria Helena",
-      time: "14:00",
+      time: "15:30",
       status: "scheduled",
       specialty: "Ginecologia"
-    },
-    {
-      id: "5",
-      patient: "Ana Beatriz",
-      doctor: "Dr. João Santos",
-      time: "15:30",
-      status: "cancelled",
-      specialty: "Clínica Geral"
     }
   ];
+
+  // Obter data atual formatada
+  const today = new Date();
+  const todayFormatted = today.toLocaleDateString('pt-BR', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 
   return (
     <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <Clock className="w-5 h-5 mr-2" />
-          Consultas Recentes
-        </h3>
-        <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
-          Ver todas
-        </button>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <CalendarDays className="w-5 h-5 mr-2" />
+            Agendamentos de Hoje
+          </h3>
+          <p className="text-sm text-gray-500 capitalize mt-1">{todayFormatted}</p>
+        </div>
+        <Link 
+          href="/agenda" 
+          className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center"
+        >
+          <Calendar className="w-4 h-4 mr-1" />
+          Ver Calendário
+        </Link>
       </div>
 
       <div className="space-y-4">
-        {appointments.map((appointment) => (
+        {todayAppointments.map((appointment) => (
           <div
             key={appointment.id}
             className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
@@ -100,7 +110,7 @@ export function RecentAppointments() {
                     {appointment.doctor}
                   </span>
                   <span className="flex items-center">
-                    <Calendar className="w-3 h-3 mr-1" />
+                    <Clock className="w-3 h-3 mr-1" />
                     {appointment.time}
                   </span>
                   <span>{appointment.specialty}</span>
@@ -112,19 +122,21 @@ export function RecentAppointments() {
               <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[appointment.status]}`}>
                 {statusLabels[appointment.status]}
               </span>
-              
-              <button className="p-1 hover:bg-gray-100 rounded-md transition-colors">
-                <MoreVertical className="w-4 h-4 text-gray-400" />
-              </button>
             </div>
           </div>
         ))}
       </div>
 
-      {appointments.length === 0 && (
+      {todayAppointments.length === 0 && (
         <div className="text-center py-8">
-          <Clock className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">Nenhuma consulta encontrada</p>
+          <CalendarDays className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500">Nenhum agendamento para hoje</p>
+          <Link 
+            href="/agenda" 
+            className="text-blue-600 hover:text-blue-800 text-sm font-medium mt-2 inline-block"
+          >
+            Ir para o Calendário
+          </Link>
         </div>
       )}
     </div>

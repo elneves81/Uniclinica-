@@ -224,3 +224,36 @@ export function DashboardCards() {
     </div>
   );
 }
+      color: "bg-blue-500"
+    },
+    {
+      title: "Consultas Hoje",
+      value: "24",
+      change: { value: 12, trend: "up" as const },
+      icon: Calendar,
+      color: "bg-green-500"
+    },
+    {
+      title: "Receita Mensal",
+      value: "R$ 45.280",
+      change: { value: 15, trend: "up" as const },
+      icon: DollarSign,
+      color: "bg-yellow-500"
+    },
+    {
+      title: "Prontuários",
+      value: "856",
+      change: { value: 3, trend: "down" as const },
+      icon: FileText,
+      color: "bg-purple-500"
+    }
+  ];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {cards.map((card, index) => (
+        <DashboardCard key={index} {...card} />
+      ))}
+    </div>
+  );
+}

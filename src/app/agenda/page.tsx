@@ -7,11 +7,12 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
-  Stethoscope,
+  Calendar,
   Edit,
   Trash2,
   Eye,
-  UserCheck
+  UserCheck,
+  Clock
 } from "lucide-react";
 
 interface Appointment {
@@ -32,6 +33,7 @@ export default function AgendaPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState<string>("all");
 
   const appointments: Appointment[] = [
     {
@@ -157,192 +159,167 @@ export default function AgendaPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header estilo FastMedic */}
-      <div className="bg-blue-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-3">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Stethoscope className="h-8 w-8" />
-                <div>
-                  <h1 className="text-xl font-bold">UNICLÍNICA</h1>
-                  <p className="text-xs opacity-90">PREFEITURA MUNICIPAL DE GUARAPUAVA</p>
-                </div>
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-600 rounded-lg">
+                <Calendar className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Agenda Médica</h1>
+                <p className="text-gray-600">Gerenciamento de consultas e agendamentos</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4 text-sm">
-              <span>Bem vindo ELBER LUIZ NEVES - RECEPCIONISTA DE CONSULTÓRIO MÉDICO OU DENTÁRIO</span>
-              <button className="bg-blue-700 px-3 py-1 rounded text-xs hover:bg-blue-800">
-                Sair
+            
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={handlePreviousDay}
+                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <div className="text-lg font-semibold text-gray-900 min-w-[200px] text-center">
+                {formatDate(currentDate)}
+              </div>
+              <button
+                onClick={handleNextDay}
+                className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                <ChevronRight className="h-5 w-5" />
               </button>
             </div>
-          </div>
-        </div>
-
-        {/* Menu de navegação */}
-        <div className="bg-blue-700">
-          <div className="max-w-7xl mx-auto px-4">
-            <nav className="flex space-x-8 text-sm">
-              <a href="#" className="py-3 px-2 hover:text-blue-200">Atendimento</a>
-              <a href="#" className="py-3 px-2 border-b-2 border-blue-400 text-blue-200">Agenda</a>
-              <a href="#" className="py-3 px-2 hover:text-blue-200">Usuário</a>
-              <a href="#" className="py-3 px-2 hover:text-blue-200">Programas</a>
-              <a href="#" className="py-3 px-2 hover:text-blue-200">Ferramentas</a>
-              <a href="#" className="py-3 px-2 hover:text-blue-200">Segurança</a>
-              <a href="#" className="py-3 px-2 hover:text-blue-200">Ajuda</a>
-            </nav>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Título da página */}
-        <div className="bg-blue-600 text-white px-4 py-2 rounded-t-lg">
-          <h2 className="text-lg font-bold">Agenda Médica</h2>
-        </div>
-
-        {/* Controles da agenda */}
-        <div className="bg-white border border-gray-300 rounded-b-lg p-6">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Controles e filtros */}
+        <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700">
+            <div className="flex items-center space-x-3">
+              <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                 <Plus className="h-4 w-4" />
-                <span>Novo Agendamento</span>
+                <span>Nova Consulta</span>
               </button>
-              <button className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700">
+              <button className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
                 <Search className="h-4 w-4" />
                 <span>Buscar</span>
               </button>
-              <button className="flex items-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded text-sm hover:bg-gray-700">
+              <button className="flex items-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
                 <Filter className="h-4 w-4" />
                 <span>Filtros</span>
               </button>
             </div>
 
             <div className="flex items-center space-x-4">
-              <button
-                onClick={handlePreviousDay}
-                className="p-2 border border-gray-300 rounded hover:bg-gray-50"
+              <select 
+                value={selectedDoctor}
+                onChange={(e) => setSelectedDoctor(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <div className="text-lg font-medium text-gray-900">
-                {formatDate(currentDate)}
-              </div>
-              <button
-                onClick={handleNextDay}
-                className="p-2 border border-gray-300 rounded hover:bg-gray-50"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Filtros médicos */}
-          <div className="bg-blue-100 p-4 rounded mb-6">
-            <h3 className="font-bold text-blue-800 mb-3">Filtro por Médico</h3>
-            <div className="grid grid-cols-4 gap-4">
-              {doctors.map((doctor, index) => (
-                <label key={index} className="flex items-center space-x-2">
-                  <input type="checkbox" defaultChecked className="rounded" />
-                  <span className="text-sm">{doctor}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Agenda do dia */}
-          <div className="border border-gray-300 rounded">
-            <div className="bg-blue-100 px-4 py-2 border-b border-gray-300">
-              <div className="grid grid-cols-6 gap-4 text-sm font-bold text-blue-800">
-                <div>Horário</div>
-                <div>Paciente</div>
-                <div>Médico</div>
-                <div>Especialidade</div>
-                <div>Status</div>
-                <div>Ações</div>
-              </div>
-            </div>
-
-            <div className="bg-white max-h-96 overflow-y-auto">
-              {timeSlots.map((time, index) => {
-                const slotsAppointments = getAppointmentsForTimeSlot(time);
-                
-                return (
-                  <div key={time} className={`border-b border-gray-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                    {slotsAppointments.length > 0 ? (
-                      slotsAppointments.map((appointment) => (
-                        <div
-                          key={appointment.id}
-                          className="grid grid-cols-6 gap-4 px-4 py-3 text-sm hover:bg-blue-50 cursor-pointer"
-                          onClick={() => handleAppointmentClick(appointment)}
-                        >
-                          <div className="font-medium text-blue-700">{time}</div>
-                          <div className="text-gray-900">
-                            <div className="font-medium">{appointment.patient}</div>
-                            <div className="text-xs text-gray-500">{appointment.patientPhone}</div>
-                          </div>
-                          <div className="text-gray-700">{appointment.doctor}</div>
-                          <div className="text-gray-700">{appointment.specialty}</div>
-                          <div>
-                            <span className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(appointment.status)}`}>
-                              {appointment.status}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <button className="text-blue-600 hover:text-blue-800" title="Visualizar">
-                              <Eye className="h-4 w-4" />
-                            </button>
-                            <button className="text-green-600 hover:text-green-800" title="Editar">
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button className="text-orange-600 hover:text-orange-800" title="Confirmar">
-                              <UserCheck className="h-4 w-4" />
-                            </button>
-                            <button className="text-red-600 hover:text-red-800" title="Cancelar">
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="grid grid-cols-6 gap-4 px-4 py-3 text-sm text-gray-400">
-                        <div className="font-medium">{time}</div>
-                        <div className="col-span-5 text-center">--- Horário Livre ---</div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                <option value="all">Todos os Médicos</option>
+                {doctors.map((doctor, index) => (
+                  <option key={index} value={doctor}>{doctor}</option>
+                ))}
+              </select>
             </div>
           </div>
 
           {/* Resumo do dia */}
-          <div className="mt-6 grid grid-cols-6 gap-4 text-center">
-            <div className="bg-blue-100 p-3 rounded">
-              <div className="text-2xl font-bold text-blue-800">{appointments.filter(a => a.status === "AGENDADO").length}</div>
-              <div className="text-sm text-blue-600">Agendados</div>
+          <div className="grid grid-cols-6 gap-4 mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600">{appointments.filter(a => a.status === "AGENDADO").length}</div>
+              <div className="text-sm text-blue-600 font-medium">Agendados</div>
             </div>
-            <div className="bg-green-100 p-3 rounded">
-              <div className="text-2xl font-bold text-green-800">{appointments.filter(a => a.status === "CONFIRMADO").length}</div>
-              <div className="text-sm text-green-600">Confirmados</div>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-green-600">{appointments.filter(a => a.status === "CONFIRMADO").length}</div>
+              <div className="text-sm text-green-600 font-medium">Confirmados</div>
             </div>
-            <div className="bg-yellow-100 p-3 rounded">
-              <div className="text-2xl font-bold text-yellow-800">{appointments.filter(a => a.status === "EM_ANDAMENTO").length}</div>
-              <div className="text-sm text-yellow-600">Em Andamento</div>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-yellow-600">{appointments.filter(a => a.status === "EM_ANDAMENTO").length}</div>
+              <div className="text-sm text-yellow-600 font-medium">Em Andamento</div>
             </div>
-            <div className="bg-gray-100 p-3 rounded">
-              <div className="text-2xl font-bold text-gray-800">{appointments.filter(a => a.status === "FINALIZADO").length}</div>
-              <div className="text-sm text-gray-600">Finalizados</div>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-gray-600">{appointments.filter(a => a.status === "FINALIZADO").length}</div>
+              <div className="text-sm text-gray-600 font-medium">Finalizados</div>
             </div>
-            <div className="bg-red-100 p-3 rounded">
-              <div className="text-2xl font-bold text-red-800">{appointments.filter(a => a.status === "CANCELADO").length}</div>
-              <div className="text-sm text-red-600">Cancelados</div>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-red-600">{appointments.filter(a => a.status === "CANCELADO").length}</div>
+              <div className="text-sm text-red-600 font-medium">Cancelados</div>
             </div>
-            <div className="bg-orange-100 p-3 rounded">
-              <div className="text-2xl font-bold text-orange-800">{appointments.filter(a => a.status === "FALTOU").length}</div>
-              <div className="text-sm text-orange-600">Faltas</div>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
+              <div className="text-2xl font-bold text-orange-600">{appointments.filter(a => a.status === "FALTOU").length}</div>
+              <div className="text-sm text-orange-600 font-medium">Faltas</div>
             </div>
+          </div>
+        </div>
+
+        {/* Grade de horários */}
+        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+          <div className="bg-gray-50 px-6 py-4 border-b">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <Clock className="h-5 w-5 mr-2" />
+              Agenda do Dia
+            </h3>
+          </div>
+
+          <div className="divide-y divide-gray-200 max-h-[600px] overflow-y-auto">
+            {timeSlots.map((time, index) => {
+              const slotsAppointments = getAppointmentsForTimeSlot(time);
+              
+              return (
+                <div key={time} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                  {slotsAppointments.length > 0 ? (
+                    slotsAppointments.map((appointment) => (
+                      <div
+                        key={appointment.id}
+                        className="flex items-center px-6 py-4 hover:bg-blue-50 cursor-pointer transition-colors"
+                        onClick={() => handleAppointmentClick(appointment)}
+                      >
+                        <div className="w-20 text-sm font-semibold text-blue-600">{time}</div>
+                        <div className="flex-1 grid grid-cols-4 gap-4">
+                          <div>
+                            <div className="font-medium text-gray-900">{appointment.patient}</div>
+                            <div className="text-sm text-gray-500">{appointment.patientPhone}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-900">{appointment.doctor}</div>
+                            <div className="text-sm text-gray-500">{appointment.specialty}</div>
+                          </div>
+                          <div className="text-gray-700">{appointment.room}</div>
+                          <div className="flex items-center justify-between">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                              {appointment.status}
+                            </span>
+                            <div className="flex items-center space-x-2">
+                              <button className="text-blue-600 hover:text-blue-800 p-1" title="Visualizar">
+                                <Eye className="h-4 w-4" />
+                              </button>
+                              <button className="text-green-600 hover:text-green-800 p-1" title="Editar">
+                                <Edit className="h-4 w-4" />
+                              </button>
+                              <button className="text-orange-600 hover:text-orange-800 p-1" title="Confirmar">
+                                <UserCheck className="h-4 w-4" />
+                              </button>
+                              <button className="text-red-600 hover:text-red-800 p-1" title="Cancelar">
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex items-center px-6 py-4 text-gray-400">
+                      <div className="w-20 text-sm font-semibold">{time}</div>
+                      <div className="flex-1 text-center italic">Horário disponível</div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -350,94 +327,91 @@ export default function AgendaPage() {
       {/* Modal de detalhes do agendamento */}
       {showAppointmentModal && selectedAppointment && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold">Detalhes do Agendamento</h2>
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-gray-50 px-6 py-4 border-b flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-900">Detalhes da Consulta</h2>
               <button
                 onClick={() => setShowAppointmentModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 text-2xl"
               >
-                ✕
+                ×
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Paciente</label>
-                  <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedAppointment.patient}</p>
+            <div className="p-6">
+              <div className="grid grid-cols-2 gap-6 mb-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Paciente</label>
+                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg border">{selectedAppointment.patient}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg border">{selectedAppointment.patientPhone}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg border">{new Date(selectedAppointment.date).toLocaleDateString('pt-BR')}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Horário</label>
+                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg border">{selectedAppointment.time}</p>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
-                  <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedAppointment.patientPhone}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
-                  <p className="text-gray-900 bg-gray-50 p-2 rounded">{new Date(selectedAppointment.date).toLocaleDateString('pt-BR')}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Horário</label>
-                  <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedAppointment.time}</p>
-                </div>
-              </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Médico</label>
-                  <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedAppointment.doctor}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Especialidade</label>
-                  <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedAppointment.specialty}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Consultório</label>
-                  <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedAppointment.room}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <div className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(selectedAppointment.status)}`}>
-                    {selectedAppointment.status}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Médico</label>
+                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg border">{selectedAppointment.doctor}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Especialidade</label>
+                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg border">{selectedAppointment.specialty}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Consultório</label>
+                    <p className="text-gray-900 bg-gray-50 p-3 rounded-lg border">{selectedAppointment.room}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <div className={`inline-flex px-3 py-2 rounded-lg text-sm font-medium ${getStatusColor(selectedAppointment.status)}`}>
+                      {selectedAppointment.status}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {selectedAppointment.notes && (
-              <div className="mt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
-                <p className="text-gray-900 bg-gray-50 p-2 rounded">{selectedAppointment.notes}</p>
+              {selectedAppointment.notes && (
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Observações</label>
+                  <p className="text-gray-900 bg-gray-50 p-3 rounded-lg border">{selectedAppointment.notes}</p>
+                </div>
+              )}
+
+              <div className="flex justify-end space-x-3 pt-4 border-t">
+                <button
+                  onClick={() => setShowAppointmentModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Fechar
+                </button>
+                <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center">
+                  <UserCheck className="h-4 w-4 mr-2" />
+                  Confirmar
+                </button>
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar
+                </button>
+                <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Cancelar
+                </button>
               </div>
-            )}
-
-            <div className="mt-6 flex justify-end space-x-3">
-              <button
-                onClick={() => setShowAppointmentModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50"
-              >
-                Fechar
-              </button>
-              <button className="px-4 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 flex items-center">
-                <UserCheck className="h-4 w-4 mr-2" />
-                Confirmar
-              </button>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 flex items-center">
-                <Edit className="h-4 w-4 mr-2" />
-                Editar
-              </button>
-              <button className="px-4 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700 flex items-center">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Cancelar
-              </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* Footer */}
-      <div className="bg-gray-100 border-t border-gray-200 py-2 px-4 text-xs text-gray-600 text-center">
-        FastMedic Sistemas | © FastMedic | Versão 5.126.6.24402
-      </div>
     </div>
   );
 }
