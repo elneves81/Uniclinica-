@@ -97,6 +97,22 @@ npx prisma generate
 npm ci
 ```
 
+### Erro 500 (Internal Server Error)
+Se você ver:
+```
+GET https://seu-site.netlify.app/ 500 (Internal Server Error)
+Server Components render error
+```
+
+**Causa**: Variáveis de ambiente não configuradas ou banco inacessível
+**Solução**:
+1. ✅ Acesse `https://seu-site.netlify.app/status` para diagnóstico
+2. ✅ Configure todas as variáveis obrigatórias no Netlify
+3. ✅ Verifique se o Prisma Accelerate está ativo
+4. ✅ Use `https://generate-secret.vercel.app/32` para NEXTAUTH_SECRET
+
+**Diagnóstico rápido**: Visite `/status` no seu site para ver o que está faltando.
+
 ### Erro 404 de JavaScript/CSS (MIME type 'text/html')
 Se você ver erros como:
 ```
