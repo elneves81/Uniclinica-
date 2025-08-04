@@ -1,7 +1,17 @@
-import { validateEnv, getEnvStatus } from '@/lib/env'
 import { prisma } from '@/lib/prisma'
+import Link from 'next/link'
 
 export default async function StatusPage() {
+  // Função para obter status das variáveis
+  const getEnvStatus = () => {
+    return {
+      hasDatabase: !!process.env.DATABASE_URL,
+      hasNextAuth: !!process.env.NEXTAUTH_SECRET,
+      hasGoogleOAuth: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+      hasEmail: !!(process.env.EMAIL_SERVER_HOST && process.env.EMAIL_SERVER_USER),
+    }
+  }
+
   const envStatus = getEnvStatus()
   let dbStatus = false
   let dbError = null
@@ -93,12 +103,12 @@ export default async function StatusPage() {
 
           {/* Botão para voltar */}
           <div className="mt-8 text-center">
-            <a 
+            <Link 
               href="/"
               className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
             >
               🏠 Voltar ao Sistema
-            </a>
+            </Link>
           </div>
         </div>
       </div>
