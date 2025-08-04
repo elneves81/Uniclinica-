@@ -14,13 +14,17 @@ import {
   Eye,
   Heart,
   Search,
-  UserPlus
+  UserPlus,
+  Clock,
+  Shield,
+  List
 } from "lucide-react";
 
 const menuItems = [
   { href: "/", label: "Dashboard", icon: Home },
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/recepcao", label: "Recepção", icon: UserPlus },
+  { href: "/fila-atendimento", label: "Fila de Atendimento", icon: Clock },
   { href: "/pacientes", label: "Pacientes", icon: Users },
   { href: "/pesquisa-usuario", label: "Pesquisa de Usuário", icon: Search },
   { href: "/prontuarios", label: "Prontuários", icon: FileText },
@@ -36,6 +40,7 @@ const menuItems = [
     ]
   },
   { href: "/relatorios", label: "Relatórios", icon: FileText },
+  { href: "/acesso-profissional", label: "Acesso Profissional", icon: Shield },
   { href: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 
