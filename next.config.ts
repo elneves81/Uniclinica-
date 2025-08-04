@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Configurações para Netlify
-  output: 'standalone',
+  trailingSlash: false,
   
   // Otimizações de imagem
   images: {
