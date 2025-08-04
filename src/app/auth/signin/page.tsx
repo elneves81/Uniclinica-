@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn, getSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Stethoscope, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
@@ -31,7 +31,8 @@ export default function SignIn() {
       } else {
         router.push("/");
       }
-    } catch (error) {
+    } catch (err) {
+      console.error("Login error:", err);
       setError("Erro ao fazer login");
     } finally {
       setIsLoading(false);
@@ -42,7 +43,8 @@ export default function SignIn() {
     setIsLoading(true);
     try {
       await signIn("google", { callbackUrl: "/" });
-    } catch (error) {
+    } catch (err) {
+      console.error("Google login error:", err);
       setError("Erro ao fazer login com Google");
     } finally {
       setIsLoading(false);

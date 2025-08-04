@@ -19,9 +19,7 @@ const nextConfig: NextConfig = {
   },
   
   // Experimental features
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client'],
-  },
+  serverExternalPackages: ['@prisma/client'],
   
   // Headers de segurança
   async headers() {

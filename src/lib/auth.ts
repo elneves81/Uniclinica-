@@ -3,10 +3,9 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google"
 import { prisma } from "@/lib/prisma"
-import bcrypt from "bcryptjs"
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any,
+  adapter: PrismaAdapter(prisma) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -57,21 +56,20 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role
+      if (user && 'role' in user) {
+        token.role = (user as any).role; // eslint-disable-line @typescript-eslint/no-explicit-any
       }
       return token
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.sub!
-        session.user.role = token.role as string
+      if (token && session.user) {
+        (session.user as any).id = token.sub!; // eslint-disable-line @typescript-eslint/no-explicit-any
+        (session.user as any).role = token.role as string; // eslint-disable-line @typescript-eslint/no-explicit-any
       }
       return session
     }
   },
   pages: {
     signIn: "/auth/signin",
-    signUp: "/auth/signup",
   }
 }

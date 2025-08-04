@@ -20,8 +20,6 @@ interface Appointment {
 export default function Agenda() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<"day" | "week" | "month">("week");
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
-  const [showNewAppointment, setShowNewAppointment] = useState(false);
 
   const appointments: Appointment[] = [
     {
@@ -107,7 +105,7 @@ export default function Agenda() {
               </div>
               
               <button
-                onClick={() => setShowNewAppointment(true)}
+                onClick={() => console.log("Nova consulta")}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -212,7 +210,7 @@ export default function Agenda() {
                             {slotsAppointments.map((appointment) => (
                               <div
                                 key={appointment.id}
-                                onClick={() => setSelectedAppointment(appointment)}
+                                onClick={() => console.log("Appointment:", appointment.id)}
                                 className={`p-3 mb-2 rounded-lg border cursor-pointer hover:shadow-md transition-shadow ${statusColors[appointment.status]}`}
                               >
                                 <div className="flex items-center justify-between">
