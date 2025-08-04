@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { 
   Users, 
   Calendar, 
@@ -8,9 +9,7 @@ import {
   FileText, 
   TrendingUp, 
   TrendingDown, 
-  UserCheck,
-  Clock,
-  ChevronRight
+  UserCheck
 } from "lucide-react";
 
 interface DashboardCardProps {
@@ -63,7 +62,7 @@ function DashboardCard({ title, value, change, icon: Icon, color }: DashboardCar
 }
 
 export function DashboardCards() {
-  const [selectedPatient, setSelectedPatient] = useState<PatientForConsultation | null>(null);
+  const router = useRouter();
   
   // Dados mock para pacientes aguardando atendimento
   const patientsForConsultation: PatientForConsultation[] = [
