@@ -27,7 +27,7 @@ const menuItems = [
   { href: "/recepcao", label: "Recepção", icon: UserPlus },
   { href: "/fila-atendimento", label: "Fila de Atendimento", icon: Clock },
   { href: "/pacientes", label: "Pacientes", icon: Users },
-  { href: "/pesquisa-usuario", label: "Pesquisa de Usuário", icon: Search },
+  { href: "/busca-usuarios", label: "Pesquisa de Usuário", icon: Search },
   { href: "/prontuarios", label: "Prontuários", icon: FileText },
   { href: "/financeiro", label: "Financeiro", icon: DollarSign },
   {
