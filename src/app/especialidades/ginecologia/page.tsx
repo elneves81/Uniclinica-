@@ -1,5 +1,5 @@
-import AtendimentoOrtopedia from "@/components/ortopedia/atendimento";
+import AtendimentoGinecologia from "@/components/ginecologia/atendimento";
 
-export default function OrtopediaPage() {
-  return <AtendimentoOrtopedia />;
+export default function GinecologiaPage() {
+  return <AtendimentoGinecologia />;
 }

@@ -17,7 +17,8 @@ import {
   UserPlus,
   Clock,
   Shield,
-  List
+  List,
+  Bone
 } from "lucide-react";
 
 const menuItems = [
@@ -37,6 +38,7 @@ const menuItems = [
       { href: "/especialidades/pediatria", label: "Pediatria", icon: Baby },
       { href: "/especialidades/dermatologia", label: "Dermatologia", icon: Eye },
       { href: "/especialidades/ginecologia", label: "Ginecologia", icon: Heart },
+      { href: "/especialidades/ortopedia", label: "Ortopedia", icon: Bone },
     ]
   },
   { href: "/relatorios", label: "Relatórios", icon: FileText },

@@ -1,5 +1,5 @@
-import AtendimentoOrtopedia from "@/components/ortopedia/atendimento";
+import AtendimentoPediatrico from "@/components/pediatria/atendimento";
 
-export default function OrtopediaPage() {
-  return <AtendimentoOrtopedia />;
+export default function PediatriaPage() {
+  return <AtendimentoPediatrico />;
 }
