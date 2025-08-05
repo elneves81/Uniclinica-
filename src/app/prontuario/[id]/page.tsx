@@ -19,6 +19,7 @@ import {
   Award,
   ArrowLeft
 } from "lucide-react";
+import LayoutIntegrado from "@/components/layout/LayoutIntegrado";
 
 interface PatientData {
   id: string;
@@ -545,5 +546,20 @@ export default function ProntuarioPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function ProntuarioContent() {
+  // Mover todo o conteúdo da função ProntuarioPage aqui
+  const params = useParams();
+  // ... resto do código
+  return null; // Temporário
+}
+
+export default function ProntuarioPage() {
+  return (
+    <LayoutIntegrado>
+      <ProntuarioContent />
+    </LayoutIntegrado>
   );
 }

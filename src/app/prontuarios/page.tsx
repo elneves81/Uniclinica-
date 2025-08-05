@@ -1,390 +1,284 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { 
-  FileText, 
-  Search, 
-  Plus, 
-  Eye, 
-  Edit, 
-  Download,
+  FileText,
+  Search,
+  Filter,
+  Plus,
+  Eye,
   Calendar,
   User,
   Stethoscope,
-  AlertTriangle,
+  Download,
+  ChevronDown,
+  ChevronRight,
+  AlertCircle,
+  CheckCircle,
   Clock,
-  Shield,
-  Filter,
-  Heart,
-  Activity,
-  Thermometer
+  Star
 } from "lucide-react";
+import LayoutIntegrado from "@/components/layout/LayoutIntegrado";
 
-interface MedicalRecord {
+interface Prontuario {
   id: string;
-  patientId: string;
   patientName: string;
-  patientAge: number;
-  patientGender: "M" | "F" | "O";
-  date: string;
-  doctorName: string;
+  patientCpf: string;
+  lastVisit: string;
+  doctor: string;
   specialty: string;
-  type: "consultation" | "exam" | "procedure" | "emergency";
-  chiefComplaint: string;
-  historyOfPresentIllness: string;
-  physicalExamination: {
-    generalAppearance: string;
-    vitalSigns: {
-      bloodPressure: string;
-      heartRate: number;
-      temperature: number;
-      respiratoryRate: number;
-      oxygenSaturation: number;
-    };
-    systemicExamination: string;
-  };
-  diagnosis: {
-    primary: string;
-    secondary?: string[];
-    icd10: string;
-  };
-  treatment: {
-    medications: Array<{
-      name: string;
-      dosage: string;
-      frequency: string;
-      duration: string;
-    }>;
-    procedures: string[];
-    recommendations: string[];
-  };
-  followUp: {
-    returnDate?: string;
-    instructions: string;
-    referrals?: string[];
-  };
-  attachments: Array<{
-    id: string;
-    name: string;
-    type: string;
-    url: string;
-  }>;
-  status: "active" | "completed" | "cancelled";
-  createdAt: string;
-  updatedAt: string;
+  status: 'active' | 'inactive' | 'emergency';
+  priority: 'low' | 'medium' | 'high';
+  totalVisits: number;
+  lastDiagnosis: string;
+  age: number;
+  phone: string;
 }
 
-// Dados mock
-const mockRecords: MedicalRecord[] = [
-  {
-    id: "1",
-    patientId: "pat_001",
-    patientName: "Maria Silva Santos",
-    patientAge: 39,
-    patientGender: "F",
-    date: "2024-01-15",
-    doctorName: "Dr. João Cardiologista",
-    specialty: "Cardiologia",
-    type: "consultation",
-    chiefComplaint: "Dor no peito e palpitações",
-    historyOfPresentIllness: "Paciente relata episódios de dor precordial há 2 semanas, associada a palpitações e dispneia aos esforços. Nega síncope ou lipotimia. Episódios ocorrem principalmente durante atividade física.",
-    physicalExamination: {
-      generalAppearance: "Paciente consciente, orientada, colaborativa, em bom estado geral",
-      vitalSigns: {
-        bloodPressure: "140/90 mmHg",
-        heartRate: 88,
-        temperature: 36.5,
-        respiratoryRate: 16,
-        oxygenSaturation: 98
-      },
-      systemicExamination: "Aparelho cardiovascular: ritmo regular, bulhas normofonéticas, sem sopros. Aparelho respiratório: murmúrio vesicular presente bilateralmente, sem ruídos adventícios."
-    },
-    diagnosis: {
-      primary: "Hipertensão arterial sistêmica",
-      secondary: ["Síndrome do pânico a esclarecer"],
-      icd10: "I10"
-    },
-    treatment: {
-      medications: [
-        {
-          name: "Losartana",
-          dosage: "50mg",
-          frequency: "1x ao dia",
-          duration: "Uso contínuo"
-        },
-        {
-          name: "Anlodipino",
-          dosage: "5mg",
-          frequency: "1x ao dia",
-          duration: "Uso contínuo"
-        }
-      ],
-      procedures: [],
-      recommendations: [
-        "Dieta hipossódica",
-        "Atividade física regular (caminhada 30min/dia)",
-        "Controle de peso",
-        "Evitar tabagismo e álcool"
-      ]
-    },
-    followUp: {
-      returnDate: "2024-02-15",
-      instructions: "Retorno em 30 dias para avaliação de resposta ao tratamento",
-      referrals: ["Nutricionista", "Psicólogo"]
-    },
-    attachments: [
-      {
-        id: "att_001",
-        name: "ECG_15012024.pdf",
-        type: "application/pdf",
-        url: "/attachments/ecg_001.pdf"
-      }
-    ],
-    status: "active",
-    createdAt: "2024-01-15T10:30:00Z",
-    updatedAt: "2024-01-15T10:30:00Z"
-  },
-  {
-    id: "2",
-    patientId: "pat_002",
-    patientName: "José Carlos Oliveira",
-    patientAge: 52,
-    patientGender: "M",
-    date: "2024-01-10",
-    doctorName: "Dr. Ana Clínica Geral",
-    specialty: "Clínica Geral",
-    type: "consultation",
-    chiefComplaint: "Dor abdominal e mal-estar geral",
-    historyOfPresentIllness: "Paciente apresenta dor abdominal difusa há 3 dias, associada a náuseas e mal-estar geral. Nega febre, vômitos ou alterações intestinais.",
-    physicalExamination: {
-      generalAppearance: "Paciente consciente, orientado, levemente desconfortável",
-      vitalSigns: {
-        bloodPressure: "130/80 mmHg",
-        heartRate: 92,
-        temperature: 36.8,
-        respiratoryRate: 18,
-        oxygenSaturation: 97
-      },
-      systemicExamination: "Abdome: levemente distendido, doloroso à palpação superficial em epigástrio, sem sinais de irritação peritoneal. Ruídos hidroaéreos presentes."
-    },
-    diagnosis: {
-      primary: "Gastrite aguda",
-      icd10: "K29.1"
-    },
-    treatment: {
-      medications: [
-        {
-          name: "Omeprazol",
-          dosage: "20mg",
-          frequency: "1x ao dia em jejum",
-          duration: "30 dias"
-        },
-        {
-          name: "Bromoprida",
-          dosage: "10mg",
-          frequency: "3x ao dia antes das refeições",
-          duration: "7 dias"
-        }
-      ],
-      procedures: [],
-      recommendations: [
-        "Dieta leve e fracionada",
-        "Evitar alimentos irritantes",
-        "Hidratação adequada",
-        "Repouso relativo"
-      ]
-    },
-    followUp: {
-      returnDate: "2024-01-24",
-      instructions: "Retorno em 14 dias ou se houver piora dos sintomas"
-    },
-    attachments: [],
-    status: "completed",
-    createdAt: "2024-01-10T14:20:00Z",
-    updatedAt: "2024-01-10T14:20:00Z"
-  }
-];
-
-export default function ProntuariosPage() {
-  const [records, setRecords] = useState<MedicalRecord[]>(mockRecords);
+function ProntuariosContent() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterSpecialty, setFilterSpecialty] = useState<string>("all");
-  const [filterType, setFilterType] = useState<string>("all");
-  const [selectedRecord, setSelectedRecord] = useState<MedicalRecord | null>(null);
-  const [showModal, setShowModal] = useState(false);
+  const [selectedSpecialty, setSelectedSpecialty] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedProntuario, setSelectedProntuario] = useState<Prontuario | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  const filteredRecords = records.filter(record => {
-    const matchesSearch = record.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         record.chiefComplaint.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         record.diagnosis.primary.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSpecialty = filterSpecialty === "all" || record.specialty === filterSpecialty;
-    const matchesType = filterType === "all" || record.type === filterType;
-    return matchesSearch && matchesSpecialty && matchesType;
+  const prontuarios: Prontuario[] = [
+    {
+      id: "PRN001",
+      patientName: "Maria Silva Santos",
+      patientCpf: "123.456.789-01",
+      lastVisit: "2024-01-15",
+      doctor: "Dr. João Carlos",
+      specialty: "Cardiologia",
+      status: "active",
+      priority: "high",
+      totalVisits: 12,
+      lastDiagnosis: "Hipertensão arterial",
+      age: 58,
+      phone: "(11) 99999-9999"
+    },
+    {
+      id: "PRN002",
+      patientName: "José Oliveira",
+      patientCpf: "234.567.890-12",
+      lastVisit: "2024-01-14",
+      doctor: "Dra. Ana Paula",
+      specialty: "Clínica Geral",
+      status: "active",
+      priority: "medium",
+      totalVisits: 5,
+      lastDiagnosis: "Diabetes tipo 2",
+      age: 45,
+      phone: "(11) 88888-8888"
+    },
+    {
+      id: "PRN003",
+      patientName: "Ana Costa Lima",
+      patientCpf: "345.678.901-23",
+      lastVisit: "2024-01-13",
+      doctor: "Dr. Pedro Santos",
+      specialty: "Dermatologia",
+      status: "inactive",
+      priority: "low",
+      totalVisits: 3,
+      lastDiagnosis: "Dermatite atópica",
+      age: 32,
+      phone: "(11) 77777-7777"
+    },
+    {
+      id: "PRN004",
+      patientName: "Carlos Roberto",
+      patientCpf: "456.789.012-34",
+      lastVisit: "2024-01-15",
+      doctor: "Dra. Fernanda Luz",
+      specialty: "Ortopedia",
+      status: "emergency",
+      priority: "high",
+      totalVisits: 1,
+      lastDiagnosis: "Fratura de punho",
+      age: 28,
+      phone: "(11) 66666-6666"
+    }
+  ];
+
+  const specialties = ["all", "Cardiologia", "Clínica Geral", "Dermatologia", "Ortopedia", "Pediatria"];
+  const statuses = ["all", "active", "inactive", "emergency"];
+
+  const filteredProntuarios = prontuarios.filter(prontuario => {
+    const matchesSearch = prontuario.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         prontuario.patientCpf.includes(searchTerm) ||
+                         prontuario.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSpecialty = selectedSpecialty === "all" || prontuario.specialty === selectedSpecialty;
+    const matchesStatus = selectedStatus === "all" || prontuario.status === selectedStatus;
+    
+    return matchesSearch && matchesSpecialty && matchesStatus;
   });
 
-  const getStatusBadge = (status: string) => {
-    const statusMap = {
-      active: { color: "bg-green-100 text-green-800", label: "Ativo" },
-      completed: { color: "bg-blue-100 text-blue-800", label: "Concluído" },
-      cancelled: { color: "bg-red-100 text-red-800", label: "Cancelado" }
-    };
-    const { color, label } = statusMap[status as keyof typeof statusMap];
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${color}`}>
-        {label}
-      </span>
-    );
-  };
+  const totalPages = Math.ceil(filteredProntuarios.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProntuarios = filteredProntuarios.slice(startIndex, startIndex + itemsPerPage);
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "consultation": return <Stethoscope className="h-4 w-4" />;
-      case "exam": return <Activity className="h-4 w-4" />;
-      case "procedure": return <Heart className="h-4 w-4" />;
-      case "emergency": return <AlertTriangle className="h-4 w-4" />;
-      default: return <FileText className="h-4 w-4" />;
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'inactive': return 'bg-gray-100 text-gray-800';
+      case 'emergency': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR");
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'text-red-600';
+      case 'medium': return 'text-yellow-600';
+      case 'low': return 'text-green-600';
+      default: return 'text-gray-600';
+    }
   };
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString("pt-BR");
+  const getPriorityIcon = (priority: string) => {
+    switch (priority) {
+      case 'high': return <AlertCircle className="h-4 w-4" />;
+      case 'medium': return <Clock className="h-4 w-4" />;
+      case 'low': return <CheckCircle className="h-4 w-4" />;
+      default: return <Clock className="h-4 w-4" />;
+    }
   };
 
-  const handleViewRecord = (record: MedicalRecord) => {
-    setSelectedRecord(record);
-    setShowModal(true);
+  const openModal = (prontuario: Prontuario) => {
+    setSelectedProntuario(prontuario);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedProntuario(null);
+    setIsModalOpen(false);
   };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-              <FileText className="mr-3 h-8 w-8 text-blue-600" />
-              Prontuários Eletrônicos
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Sistema completo de prontuários médicos digitais
-            </p>
+          <div className="flex items-center">
+            <FileText className="h-8 w-8 text-blue-600 mr-3" />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Prontuários Médicos</h1>
+              <p className="text-gray-600">Gestão completa de prontuários e histórico médico</p>
+            </div>
           </div>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
-            <Plus className="mr-2 h-4 w-4" />
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700">
+            <Plus className="h-4 w-4 mr-2" />
             Novo Prontuário
           </button>
         </div>
       </div>
 
-      {/* Estatísticas Rápidas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <FileText className="h-6 w-6 text-blue-600" />
-            </div>
-            <div className="ml-4">
+            <FileText className="h-8 w-8 text-blue-600" />
+            <div className="ml-3">
               <p className="text-sm font-medium text-gray-600">Total de Prontuários</p>
-              <p className="text-2xl font-bold text-gray-900">{records.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{prontuarios.length}</p>
             </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <Clock className="h-6 w-6 text-green-600" />
-            </div>
-            <div className="ml-4">
+            <CheckCircle className="h-8 w-8 text-green-600" />
+            <div className="ml-3">
               <p className="text-sm font-medium text-gray-600">Ativos</p>
               <p className="text-2xl font-bold text-gray-900">
-                {records.filter(r => r.status === "active").length}
+                {prontuarios.filter(p => p.status === 'active').length}
               </p>
             </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
           <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <Calendar className="h-6 w-6 text-yellow-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Este Mês</p>
+            <AlertCircle className="h-8 w-8 text-red-600" />
+            <div className="ml-3">
+              <p className="text-sm font-medium text-gray-600">Emergência</p>
               <p className="text-2xl font-bold text-gray-900">
-                {records.filter(r => new Date(r.date).getMonth() === new Date().getMonth()).length}
+                {prontuarios.filter(p => p.status === 'emergency').length}
               </p>
             </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white p-4 rounded-lg shadow border-l-4 border-yellow-500">
           <div className="flex items-center">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Emergências</p>
+            <Star className="h-8 w-8 text-yellow-600" />
+            <div className="ml-3">
+              <p className="text-sm font-medium text-gray-600">Alta Prioridade</p>
               <p className="text-2xl font-bold text-gray-900">
-                {records.filter(r => r.type === "emergency").length}
+                {prontuarios.filter(p => p.priority === 'high').length}
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Filtros */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      {/* Filters */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              type="text"
-              placeholder="Buscar prontuários..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Nome, CPF ou ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
           </div>
-          
-          <select
-            value={filterSpecialty}
-            onChange={(e) => setFilterSpecialty(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">Todas as especialidades</option>
-            <option value="Clínica Geral">Clínica Geral</option>
-            <option value="Cardiologia">Cardiologia</option>
-            <option value="Pediatria">Pediatria</option>
-            <option value="Dermatologia">Dermatologia</option>
-            <option value="Ginecologia">Ginecologia</option>
-          </select>
-
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">Todos os tipos</option>
-            <option value="consultation">Consultas</option>
-            <option value="exam">Exames</option>
-            <option value="procedure">Procedimentos</option>
-            <option value="emergency">Emergências</option>
-          </select>
-
-          <div className="text-sm text-gray-600 flex items-center">
-            <Filter className="mr-2 h-4 w-4" />
-            {filteredRecords.length} prontuário(s)
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Especialidade</label>
+            <select
+              value={selectedSpecialty}
+              onChange={(e) => setSelectedSpecialty(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              {specialties.map(specialty => (
+                <option key={specialty} value={specialty}>
+                  {specialty === "all" ? "Todas as especialidades" : specialty}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              {statuses.map(status => (
+                <option key={status} value={status}>
+                  {status === "all" ? "Todos os status" : 
+                   status === "active" ? "Ativo" :
+                   status === "inactive" ? "Inativo" : "Emergência"}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-end">
+            <button className="w-full bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-gray-700">
+              <Download className="h-4 w-4 mr-2" />
+              Exportar
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Lista de Prontuários */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      {/* Table */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -393,19 +287,16 @@ export default function ProntuariosPage() {
                   Paciente
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Data/Tipo
+                  Última Consulta
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Especialidade/Médico
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Queixa Principal
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Diagnóstico
+                  Médico/Especialidade
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Prioridade
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Ações
@@ -413,214 +304,202 @@ export default function ProntuariosPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredRecords.map((record) => (
-                <tr key={record.id} className="hover:bg-gray-50">
+              {paginatedProntuarios.map((prontuario) => (
+                <tr key={prontuario.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                          <User className="h-6 w-6 text-gray-600" />
-                        </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{prontuario.patientName}</div>
+                      <div className="text-sm text-gray-500">
+                        {prontuario.patientCpf} • {prontuario.age} anos
                       </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {record.patientName}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {record.patientAge} anos • {record.patientGender === "M" ? "Masc" : "Fem"}
-                        </div>
-                      </div>
+                      <div className="text-sm text-gray-500">ID: {prontuario.id}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{formatDate(record.date)}</div>
-                    <div className="text-sm text-gray-500 flex items-center">
-                      {getTypeIcon(record.type)}
-                      <span className="ml-1 capitalize">{record.type}</span>
-                    </div>
+                    <div className="text-sm text-gray-900">{prontuario.lastVisit}</div>
+                    <div className="text-sm text-gray-500">{prontuario.totalVisits} consultas</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{record.specialty}</div>
-                    <div className="text-sm text-gray-500">{record.doctorName}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900 max-w-xs truncate">
-                      {record.chiefComplaint}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900 max-w-xs truncate">
-                      {record.diagnosis.primary}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      CID: {record.diagnosis.icd10}
-                    </div>
+                    <div className="text-sm text-gray-900">{prontuario.doctor}</div>
+                    <div className="text-sm text-gray-500">{prontuario.specialty}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(record.status)}
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(prontuario.status)}`}>
+                      {prontuario.status === 'active' ? 'Ativo' :
+                       prontuario.status === 'inactive' ? 'Inativo' : 'Emergência'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className={`flex items-center ${getPriorityColor(prontuario.priority)}`}>
+                      {getPriorityIcon(prontuario.priority)}
+                      <span className="ml-1 text-sm font-medium">
+                        {prontuario.priority === 'high' ? 'Alta' :
+                         prontuario.priority === 'medium' ? 'Média' : 'Baixa'}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleViewRecord(record)}
-                        className="text-blue-600 hover:text-blue-900"
-                        title="Visualizar"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button
-                        className="text-green-600 hover:text-green-900"
-                        title="Editar"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        className="text-purple-600 hover:text-purple-900"
-                        title="Download"
-                      >
-                        <Download className="h-4 w-4" />
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => openModal(prontuario)}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+          <div className="flex-1 flex justify-between sm:hidden">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+            >
+              Anterior
+            </button>
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+            >
+              Próximo
+            </button>
+          </div>
+          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-700">
+                Mostrando <span className="font-medium">{startIndex + 1}</span> a{' '}
+                <span className="font-medium">
+                  {Math.min(startIndex + itemsPerPage, filteredProntuarios.length)}
+                </span>{' '}
+                de <span className="font-medium">{filteredProntuarios.length}</span> resultados
+              </p>
+            </div>
+            <div>
+              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Anterior
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                      page === currentPage
+                        ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                        : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Próximo
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Modal de Visualização */}
-      {showModal && selectedRecord && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-semibold">Prontuário Médico</h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Informações do Paciente */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Dados do Paciente</h3>
-                <div className="space-y-2">
-                  <p><strong>Nome:</strong> {selectedRecord.patientName}</p>
-                  <p><strong>Idade:</strong> {selectedRecord.patientAge} anos</p>
-                  <p><strong>Sexo:</strong> {selectedRecord.patientGender === "M" ? "Masculino" : "Feminino"}</p>
-                  <p><strong>Data:</strong> {formatDate(selectedRecord.date)}</p>
-                  <p><strong>Médico:</strong> {selectedRecord.doctorName}</p>
-                  <p><strong>Especialidade:</strong> {selectedRecord.specialty}</p>
-                </div>
+      {/* Modal */}
+      {isModalOpen && selectedProntuario && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Detalhes do Prontuário - {selectedProntuario.patientName}
+                </h3>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <span className="sr-only">Fechar</span>
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
 
-              {/* Sinais Vitais */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-900 mb-3">Sinais Vitais</h3>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <p><strong>PA:</strong> {selectedRecord.physicalExamination.vitalSigns.bloodPressure}</p>
-                  <p><strong>FC:</strong> {selectedRecord.physicalExamination.vitalSigns.heartRate} bpm</p>
-                  <p><strong>Temp:</strong> {selectedRecord.physicalExamination.vitalSigns.temperature}°C</p>
-                  <p><strong>FR:</strong> {selectedRecord.physicalExamination.vitalSigns.respiratoryRate} ipm</p>
-                  <p><strong>Sat O2:</strong> {selectedRecord.physicalExamination.vitalSigns.oxygenSaturation}%</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Anamnese */}
-            <div className="mt-6 space-y-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Queixa Principal</h3>
-                <p className="text-gray-700">{selectedRecord.chiefComplaint}</p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">História da Doença Atual</h3>
-                <p className="text-gray-700">{selectedRecord.historyOfPresentIllness}</p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Exame Físico</h3>
-                <p className="text-gray-700">{selectedRecord.physicalExamination.systemicExamination}</p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Diagnóstico</h3>
-                <p className="text-gray-700">
-                  <strong>Principal:</strong> {selectedRecord.diagnosis.primary} (CID: {selectedRecord.diagnosis.icd10})
-                </p>
-                {selectedRecord.diagnosis.secondary && selectedRecord.diagnosis.secondary.length > 0 && (
-                  <p className="text-gray-700 mt-1">
-                    <strong>Secundários:</strong> {selectedRecord.diagnosis.secondary.join(", ")}
-                  </p>
-                )}
-              </div>
-
-              {/* Medicações */}
-              {selectedRecord.treatment.medications.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Prescrições</h3>
-                  <div className="space-y-2">
-                    {selectedRecord.treatment.medications.map((med, index) => (
-                      <div key={index} className="bg-blue-50 p-3 rounded border-l-4 border-blue-400">
-                        <p><strong>{med.name}</strong> {med.dosage}</p>
-                        <p className="text-sm text-gray-600">{med.frequency} - {med.duration}</p>
-                      </div>
-                    ))}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">ID do Prontuário</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedProntuario.id}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">CPF</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedProntuario.patientCpf}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Idade</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedProntuario.age} anos</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Telefone</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedProntuario.phone}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Última Consulta</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedProntuario.lastVisit}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Total de Consultas</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedProntuario.totalVisits}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Médico Responsável</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedProntuario.doctor}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Especialidade</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedProntuario.specialty}</p>
                   </div>
                 </div>
-              )}
-
-              {/* Recomendações */}
-              {selectedRecord.treatment.recommendations.length > 0 && (
+                
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Recomendações</h3>
-                  <ul className="list-disc list-inside text-gray-700">
-                    {selectedRecord.treatment.recommendations.map((rec, index) => (
-                      <li key={index}>{rec}</li>
-                    ))}
-                  </ul>
+                  <label className="block text-sm font-medium text-gray-700">Último Diagnóstico</label>
+                  <p className="mt-1 text-sm text-gray-900 bg-gray-50 p-3 rounded">{selectedProntuario.lastDiagnosis}</p>
                 </div>
-              )}
 
-              {/* Follow-up */}
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Acompanhamento</h3>
-                <p className="text-gray-700">{selectedRecord.followUp.instructions}</p>
-                {selectedRecord.followUp.returnDate && (
-                  <p className="text-gray-700 mt-1">
-                    <strong>Retorno:</strong> {formatDate(selectedRecord.followUp.returnDate)}
-                  </p>
-                )}
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                  >
+                    Fechar
+                  </button>
+                  <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Ver Prontuário Completo
+                  </button>
+                </div>
               </div>
-            </div>
-
-            <div className="mt-6 flex justify-end space-x-3">
-              <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
-                Imprimir
-              </button>
-              <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
-                Editar
-              </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* Aviso CFM */}
-      <div className="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
-        <div className="flex items-start">
-          <Shield className="h-5 w-5 text-green-600 mt-0.5 mr-2" />
-          <div className="text-sm text-green-800">
-            <strong>Conformidade CFM:</strong> Este sistema atende às normas do Conselho Federal de Medicina 
-            para prontuários eletrônicos (CFM nº 1.821/2007), garantindo integridade, autenticidade e 
-            confidencialidade dos dados médicos.
-          </div>
-        </div>
-      </div>
     </div>
+  );
+}
+
+export default function ProntuariosPage() {
+  return (
+    <LayoutIntegrado>
+      <ProntuariosContent />
+    </LayoutIntegrado>
   );
 }

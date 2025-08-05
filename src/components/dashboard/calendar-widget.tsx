@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function CalendarWidget() {
@@ -12,6 +12,8 @@ export function CalendarWidget() {
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
   ];
+
+  const dayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -48,103 +50,109 @@ export function CalendarWidget() {
     });
   };
 
+  const isToday = (day: number | null) => {
+    if (!day) return false;
+    const today = new Date();
+    return (
+      day === today.getDate() &&
+      currentDate.getMonth() === today.getMonth() &&
+      currentDate.getFullYear() === today.getFullYear()
+    );
+  };
+
   const handleDayClick = (day: number | null) => {
     if (!day) return;
     
+    // Navegar para a agenda na data selecionada
     const selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-    const dateParam = selectedDate.toISOString().split('T')[0]; // formato YYYY-MM-DD
-    
-    // Redireciona para a página de agenda com a data selecionada
-    router.push(`/agenda?date=${dateParam}`);
+    router.push(`/agenda?date=${selectedDate.toISOString().split('T')[0]}`);
   };
 
   const days = getDaysInMonth(currentDate);
-  const today = new Date().getDate();
-  const isCurrentMonth = currentDate.getMonth() === new Date().getMonth() && 
-                         currentDate.getFullYear() === new Date().getFullYear();
-
-  // Dias com agendamentos (exemplo de dados)
-  const daysWithAppointments = [8, 12, 15, 18, 22, 25, 28];
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <Calendar className="w-5 h-5 mr-2" />
-          Calendário Médico
-        </h3>
-      </div>
-
-      <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={() => navigateMonth('prev')}
-          className="p-1 hover:bg-gray-100 rounded-md transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-        
-        <h4 className="text-sm font-medium text-gray-900">
-          {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
-        </h4>
-        
-        <button
-          onClick={() => navigateMonth('next')}
-          className="p-1 hover:bg-gray-100 rounded-md transition-colors"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-
-      <div className="grid grid-cols-7 gap-1 mb-2">
-        {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map(day => (
-          <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
-            {day}
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-7 gap-1">
-        {days.map((day, index) => (
-          <div
-            key={index}
-            onClick={() => handleDayClick(day)}
-            className={`
-              text-center text-sm py-2 rounded-md transition-colors relative
-              ${day === null ? 'invisible' : 'cursor-pointer'}
-              ${day === today && isCurrentMonth 
-                ? 'bg-blue-500 text-white font-medium hover:bg-blue-600' 
-                : 'text-gray-700 hover:bg-gray-100'
-              }
-              ${day && daysWithAppointments.includes(day) && !(day === today && isCurrentMonth)
-                ? 'bg-green-50 text-green-700 border border-green-200'
-                : ''
-              }
-            `}
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+            <Calendar className="w-5 h-5 mr-2 text-blue-600" />
+            Calendário
+          </h3>
+          <button
+            onClick={() => router.push('/agenda')}
+            className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+            title="Novo agendamento"
           >
-            {day}
-            {day && daysWithAppointments.includes(day) && (
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-500 rounded-full"></div>
-            )}
-          </div>
-        ))}
+            <Plus className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <div className="text-sm text-gray-600 space-y-2">
-          <div className="flex items-center justify-between">
-            <span>Consultas hoje:</span>
-            <span className="font-medium text-blue-600">8</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Próxima consulta:</span>
-            <span className="font-medium text-green-600">14:30</span>
-          </div>
-          <div className="text-xs text-gray-500 mt-3">
-            <span className="flex items-center">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              Clique em uma data para ver agendamentos
-            </span>
-          </div>
+      <div className="p-6">
+        {/* Navegação do mês */}
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={() => navigateMonth('prev')}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          
+          <h4 className="text-lg font-semibold text-gray-900">
+            {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+          </h4>
+          
+          <button
+            onClick={() => navigateMonth('next')}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Cabeçalho dos dias da semana */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {dayNames.map((dayName) => (
+            <div key={dayName} className="text-center text-xs font-medium text-gray-500 py-2">
+              {dayName}
+            </div>
+          ))}
+        </div>
+
+        {/* Grid dos dias */}
+        <div className="grid grid-cols-7 gap-1">
+          {days.map((day, index) => (
+            <button
+              key={index}
+              onClick={() => handleDayClick(day)}
+              disabled={!day}
+              className={`
+                aspect-square flex items-center justify-center text-sm rounded-lg transition-colors
+                ${day ? 'hover:bg-blue-50 cursor-pointer' : 'cursor-default'}
+                ${isToday(day) ? 'bg-blue-600 text-white font-semibold' : 'text-gray-700'}
+                ${day && !isToday(day) ? 'hover:bg-gray-100' : ''}
+              `}
+            >
+              {day}
+            </button>
+          ))}
+        </div>
+
+        {/* Ações rápidas */}
+        <div className="mt-6 space-y-2">
+          <button
+            onClick={() => router.push('/agenda')}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          >
+            Ver Agenda Completa
+          </button>
+          
+          <button
+            onClick={() => router.push('/fila-atendimento')}
+            className="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+          >
+            Gerenciar Fila
+          </button>
         </div>
       </div>
     </div>

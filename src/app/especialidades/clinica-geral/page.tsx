@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
+import LayoutIntegrado from "@/components/layout/LayoutIntegrado";
 import { Stethoscope, Heart, Activity, Thermometer, Weight, Ruler } from "lucide-react";
 
 interface VitalSigns {
@@ -54,31 +53,27 @@ export default function ClinicaGeral() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        <Sidebar />
-        <div className="flex-1">
-          <Header />
-          <main className="p-6">
-            {/* Cabeçalho */}
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                <Stethoscope className="w-6 h-6 mr-2" />
-                Clínica Médica Geral
-              </h1>
-              <p className="text-gray-600">Atendimento clínico geral e medicina preventiva</p>
-            </div>
+    <LayoutIntegrado>
+      <div className="p-6">
+        {/* Cabeçalho */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+            <Stethoscope className="w-6 h-6 mr-2" />
+            Clínica Médica Geral
+          </h1>
+          <p className="text-gray-600">Atendimento clínico geral e medicina preventiva</p>
+        </div>
 
-            {/* Tabs */}
-            <div className="border-b border-gray-200 mb-6">
-              <nav className="-mb-px flex space-x-8">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm ${
-                      activeTab === tab.id
-                        ? "border-blue-500 text-blue-600"
+        {/* Tabs */}
+        <div className="border-b border-gray-200 mb-6">
+          <nav className="-mb-px flex space-x-8">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === tab.id
+                    ? "border-blue-500 text-blue-600"
                         : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
                   >
@@ -368,9 +363,7 @@ export default function ClinicaGeral() {
                 <p className="text-gray-500">Funcionalidade em desenvolvimento...</p>
               </div>
             )}
-          </main>
-        </div>
       </div>
-    </div>
+    </LayoutIntegrado>
   );
 }
